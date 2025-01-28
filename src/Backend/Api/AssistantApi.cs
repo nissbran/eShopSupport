@@ -23,6 +23,8 @@ public static class AssistantApi
             ? await dbContext.Products.FindAsync(request.ProductId.Value)
             : null;
 
+        var name = httpContext.User.Claims.FirstOrDefault(claim => claim.Type == "name");
+        
         // Build the prompt plus any existing conversation history
         var messages = new List<ChatMessage>([ new(ChatRole.System, $$"""
             You are a helpful AI assistant called 'Assistant' whose job is to help customer service agents working for AdventureWorks, an online retailer.
@@ -43,6 +45,11 @@ public static class AssistantApi
             <cite searchResultId=number>shortVerbatimQuote</cite>
             shortVerbatimQuote must be a very short, EXACT quote (max 10 words) from whichever search result you are citing.
             Only give one citation per answer. Always give a citation because this is important to the business.
+            If you is writing a reply to the customer always include the support technician's name in the reply.
+            
+            <support_technician_name>{{name?.Value}}</support_technician_name>
+            
+            If the support technician's name is not available, use the placeholder [Support Technician Name].
             """) ]);
 
         messages.AddRange(request.Messages.Select(m => new ChatMessage(m.IsAssistant ? ChatRole.Assistant : ChatRole.User, m.Text)));

@@ -55,6 +55,7 @@ var backend = builder.AddProject<Backend>("backend")
     .WithReference(vectorDb)
     //.WithReference(pythonInference)
     .WithReference(redis)
+    .WithEnvironment("APPLICATIONINSIGHTS_CONNECTION_STRING", builder.Configuration["AppInsights:ConnectionString"])
     .WithEnvironment("IdentityUrl", identityEndpoint)
     .WithEnvironment("ImportInitialDataDir", Path.Combine(builder.AppHostDirectory, "..", "..", "seeddata", isE2ETest ? "test" : "dev"));
 
@@ -62,10 +63,12 @@ var staffWebUi = builder.AddProject<StaffWebUI>("staffwebui")
     .WithExternalHttpEndpoints()
     .WithReference(backend)
     .WithReference(redis)
+    .WithEnvironment("APPLICATIONINSIGHTS_CONNECTION_STRING", builder.Configuration["AppInsights:ConnectionString"])
     .WithEnvironment("IdentityUrl", identityEndpoint);
 
 var customerWebUi = builder.AddProject<CustomerWebUI>("customerwebui")
     .WithReference(backend)
+    .WithEnvironment("APPLICATIONINSIGHTS_CONNECTION_STRING", builder.Configuration["AppInsights:ConnectionString"])
     .WithEnvironment("IdentityUrl", identityEndpoint);
 
 // Circular references: IdentityServer needs to know the endpoints of the web UIs

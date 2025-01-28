@@ -14,7 +14,7 @@ public static class Config
 
     public static IEnumerable<ApiScope> ApiScopes { get; } =
     [
-        new ApiScope(name: "staff-api", displayName: "Staff API", ["role"])
+        new ApiScope(name: "staff-api", displayName: "Staff API", ["role", "name"])
     ];
 
     public static IEnumerable<Client> GetClients(IConfiguration configuration) =>
@@ -54,7 +54,7 @@ public static class Config
 
             RedirectUris = { $"{configuration["StaffWebUIEndpoint"]}/signin-oidc" },
             PostLogoutRedirectUris = { $"{configuration["StaffWebUIEndpoint"]}/signout-callback-oidc" },
-
+            
             AllowedScopes =
             {
                 IdentityServerConstants.StandardScopes.OpenId,
