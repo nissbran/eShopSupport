@@ -35,7 +35,7 @@
     <div class="choose-product">
         <p>Which product is it?</p>
         <div class="answer">
-            <SmartComboBox Url="api/product-search" @bind-Value="@ProductName" placeholder="Search for product..." />
+            <SmartComboBox Url="api/product-search" @bind-Value="@ProductName" placeholder="Search for product..." SimilarityThreshold="1" />
             <ValidationMessage For="@(() => ProductName)" />
         </div>
     </div>

@@ -38,13 +38,16 @@ public static class Extensions
             logging.IncludeFormattedMessage = true;
             logging.IncludeScopes = true;
         });
-
+        
+        AppContext.SetSwitch("Microsoft.SemanticKernel.Experimental.GenAI.EnableOTelDiagnosticsSensitive", true);
+        
         builder.Services.AddOpenTelemetry()
             .WithMetrics(metrics =>
             {
                 metrics.AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation()
+                    .AddMeter("Microsoft.SemanticKernel*")
                     .AddMeter("Experimental.Microsoft.Extensions.AI*");
             })
             .WithTracing(tracing =>
@@ -53,6 +56,7 @@ public static class Extensions
                     // Uncomment the following line to enable gRPC instrumentation (requires the OpenTelemetry.Instrumentation.GrpcNetClient package)
                     //.AddGrpcClientInstrumentation()
                     .AddHttpClientInstrumentation()
+                    .AddSource("Microsoft.SemanticKernel*")
                     .AddSource("Experimental.Microsoft.Extensions.AI*");
             });
 

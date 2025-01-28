@@ -24,4 +24,10 @@
     <ProjectReference Include="..\StaffWebUI\StaffWebUI.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="appsettings.Local.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

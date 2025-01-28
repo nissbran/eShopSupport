@@ -5,6 +5,7 @@ using eShopSupport.Backend.Services;
 using eShopSupport.ServiceDefaults.Clients.Backend;
 using eShopSupport.ServiceDefaults.Clients.PythonInference;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.AI;
 using StackExchange.Redis;
 
 namespace eShopSupport.Backend.Api;
@@ -169,14 +170,28 @@ public static class TicketApi
         return Results.Ok();
     }
 
-    private static async Task CreateTicketAsync(HttpContext httpContext, AppDbContext dbContext, TicketSummarizer summarizer, PythonInferenceClient pythonInference, CreateTicketRequest request)
+    // private static async Task CreateTicketAsync(HttpContext httpContext, AppDbContext dbContext, TicketSummarizer summarizer, PythonInferenceClient pythonInference, CreateTicketRequest request)
+    // {
+    //     // Classify the new ticket using the small zero-shot classifier model
+    //     var ticketTypes = Enum.GetValues<TicketType>();
+    //     var inferredTicketType = await pythonInference.ClassifyTextAsync(
+    //         request.Message,
+    //         candidateLabels: ticketTypes.Select(type => type.ToString()));
+    //     
+    private static async Task CreateTicketAsync(HttpContext httpContext, AppDbContext dbContext, TicketSummarizer summarizer, IChatClient chatClient, CreateTicketRequest request)
     {
-        // Classify the new ticket using the small zero-shot classifier model
-        var ticketTypes = Enum.GetValues<TicketType>();
-        var inferredTicketType = await pythonInference.ClassifyTextAsync(
-            request.Message,
-            candidateLabels: ticketTypes.Select(type => type.ToString()));
+        var messages = new List<ChatMessage>([ new(ChatRole.System, $$"""
+                                                                      You are a helpful AI ticket classifier whose job is help customer service agents working for AdventureWorks, an online retailer.
+                                                                      You have the following labels to classify the ticket: {{string.Join(", ", Enum.GetValues<TicketType>())}}.
 
+                                                                      This is the text you need to classify, the text is within the <TicketMessage> tag:
+                                                                      <TicketMessage> {{request.Message}} </TicketMessage>
+                                                                      
+                                                                      Only answer with a label if you are confident in your classification. If you are not confident, do not answer.
+                                                                      """) ]);
+        var chatResponse = await chatClient.CompleteAsync(messages);
+        var inferredTicketType = chatResponse.Message.Text;
+        
         var ticket = new Ticket
         {
             CreatedAt = DateTime.UtcNow,
