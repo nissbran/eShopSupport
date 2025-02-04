@@ -46,10 +46,11 @@ public static class AssistantApi
             shortVerbatimQuote must be a very short, EXACT quote (max 10 words) from whichever search result you are citing.
             Only give one citation per answer. Always give a citation because this is important to the business.
             If you is writing a reply to the customer always include the support technician's name in the reply.
-            
-            <support_technician_name>{{name?.Value}}</support_technician_name>
-            
             If the support technician's name is not available, use the placeholder [Support Technician Name].
+            
+            Ther is some information about the support technician:
+            <name>{{name?.Value}}</name>
+            
             """) ]);
 
         messages.AddRange(request.Messages.Select(m => new ChatMessage(m.IsAssistant ? ChatRole.Assistant : ChatRole.User, m.Text)));
